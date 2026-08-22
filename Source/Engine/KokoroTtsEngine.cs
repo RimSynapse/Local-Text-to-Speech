@@ -164,10 +164,15 @@ namespace RimSynapse.LocalTts
             return ok;
         }
 
+        /// <summary>Stable id under which this mod registers its VRAM with Core's GpuStats channel.</summary>
+        internal const string GpuConsumerModId = "rimsynapse.localtts";
+
         /// <summary>
-        /// Estimate the model's VRAM footprint. Exposed via <see cref="EstimatedVramMb"/> /
-        /// <see cref="ResidentOnGpu"/> and read by the NVIDIA Tool through reflection (optional
-        /// dependency, no Core coupling). On CPU the model isn't in VRAM, so ResidentOnGpu is false.
+        /// Estimate the model's VRAM footprint and register it with Core's in-process GPU-memory
+        /// consumers channel (Core #104), so a monitor mod (the NVIDIA Tool) can give it its own
+        /// VRAM breakdown line instead of lumping it into "System". On CPU the model isn't in VRAM,
+        /// so it registers as non-resident (0 MB). <see cref="EstimatedVramMb"/> / <see cref="ResidentOnGpu"/>
+        /// remain public for any consumer that still prefers to read them directly.
         /// </summary>
         private void PublishVramFootprint()
         {
@@ -185,6 +190,17 @@ namespace RimSynapse.LocalTts
             catch (Exception ex)
             {
                 SynapseLogger.Warning($"[LocalTTS] Failed to estimate VRAM footprint: {ex.Message}");
+            }
+
+            // Register with Core's shared channel regardless of estimate outcome; a non-resident
+            // (CPU) session reports 0 MB. Guarded so a Core without the channel can't break the engine.
+            try
+            {
+                SynapseClient.Gpu?.UpsertConsumer(GpuConsumerModId, "Local TTS (Kokoro)", EstimatedVramMb, _session.OnGpu);
+            }
+            catch (Exception ex)
+            {
+                SynapseLogger.Warning($"[LocalTTS] Could not register GPU consumer with Core: {ex.Message}");
             }
         }
 
@@ -261,6 +277,10 @@ namespace RimSynapse.LocalTts
             _disposed = true;
             _queue.CompleteAdding();
             _session.Dispose();
+
+            // Model is gone from VRAM — drop our row from Core's consumers channel (Core #104).
+            try { SynapseClient.Gpu?.RemoveConsumer(GpuConsumerModId); }
+            catch { /* Core without the channel; nothing to clean up */ }
         }
     }
 }
