@@ -11,7 +11,3 @@ Resources/native/
 Resources/models/
 
 # Bundled managed dependencies copied in at build time
-Assemblies/Microsoft.ML.OnnxRuntime.dll
-Assemblies/System.Memory.dll
-Assemblies/System.Buffers.dll
-Assemblies/System.Numerics.Vectors.dll
