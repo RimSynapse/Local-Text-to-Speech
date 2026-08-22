@@ -20,7 +20,11 @@
 [CmdletBinding()]
 param(
     [switch]$Quantized,
-    [string]$EspeakZipUrl = ""
+    [string]$EspeakZipUrl = "",
+    [string[]]$Voices = @(),
+    # Fetch every language's voices. Off by default: the mod's G2P is English, so only the
+    # English voices (US "a*" + British "b*") are pulled unless you ask for all.
+    [switch]$AllLanguages
 )
 
 $ErrorActionPreference = "Stop"
@@ -50,14 +54,26 @@ Write-Host "Downloading Kokoro model ($modelFile)..."
 Get-File "$hf/$modelFile" (Join-Path $modelsDir "kokoro-v1.0.onnx")
 
 # ── 2. Voices ───────────────────────────────────────────────────────────────
-# Each voice is a raw float32 [510,256] style bank. Add/remove ids as you like.
-$voices = @(
-    "af_heart", "af_bella", "af_nicole", "af_sarah",
-    "am_michael", "am_adam", "am_puck",
-    "bf_emma", "bm_george"
-)
-Write-Host "Downloading $($voices.Count) voices..."
-foreach ($v in $voices) {
+# Each voice is a raw float32 [510,256] style bank. By default we fetch EVERY
+# built-in Kokoro voice (all languages) by listing the repo; pass -Voices to
+# restrict to a subset.
+if (-not $Voices -or $Voices.Count -eq 0) {
+    Write-Host "Listing built-in voices$(if ($AllLanguages) { ' (all languages)' } else { ' (English only)' })..."
+    try {
+        $tree = Invoke-RestMethod "https://huggingface.co/api/models/onnx-community/Kokoro-82M-v1.0-ONNX/tree/main/voices?recursive=false"
+        $Voices = $tree | Where-Object { $_.path -like "voices/*.bin" } |
+                  ForEach-Object { ($_.path -replace "voices/","") -replace "\.bin","" }
+        if (-not $AllLanguages) {
+            # English voices are the US "a*" and British "b*" prefixes.
+            $Voices = $Voices | Where-Object { $_ -match '^[ab]' }
+        }
+    } catch {
+        Write-Warning "Could not list voices from Hugging Face ($_). Falling back to the core English set."
+        $Voices = @("af_heart","af_bella","af_nicole","af_sarah","am_michael","am_adam","am_puck","bf_emma","bm_george")
+    }
+}
+Write-Host "Downloading $($Voices.Count) voices..."
+foreach ($v in $Voices) {
     Get-File "$hf/voices/$v.bin" (Join-Path $voicesDir "$v.bin")
 }
 

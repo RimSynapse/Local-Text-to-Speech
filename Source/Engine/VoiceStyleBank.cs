@@ -36,6 +36,29 @@ namespace RimSynapse.LocalTts
             return style;
         }
 
+        /// <summary>
+        /// Style vector for a blend of two voices: (1-amount)*primary + amount*blend. Falls back to
+        /// the primary voice when the blend voice is empty/missing or the amount is ~0.
+        /// </summary>
+        public static float[] GetBlendedStyle(string primaryId, string blendId, float amount, int tokenCount)
+        {
+            float[] primary = GetStyle(primaryId, tokenCount);
+            if (primary == null) return null;
+
+            if (string.IsNullOrEmpty(blendId) || blendId == primaryId || amount <= 0.001f)
+                return primary;
+
+            float[] blend = GetStyle(blendId, tokenCount);
+            if (blend == null) return primary;
+
+            if (amount > 1f) amount = 1f;
+            float keep = 1f - amount;
+            var result = new float[Dim];
+            for (int i = 0; i < Dim; i++)
+                result[i] = primary[i] * keep + blend[i] * amount;
+            return result;
+        }
+
         private static float[] LoadVoice(string voiceId)
         {
             lock (_lock)

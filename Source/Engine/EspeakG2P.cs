@@ -15,9 +15,10 @@ namespace RimSynapse.LocalTts
         private static readonly object _lock = new object();
         private static bool _initialized;
         private static bool _failed;
+        private static string _currentLang;
 
-        /// <summary>Initialize espeak-ng once, pointing it at the bundled espeak-ng-data folder.</summary>
-        public static bool EnsureInitialized(string voice = "en-us")
+        /// <summary>Initialize the espeak-ng library once, pointing it at the bundled espeak-ng-data.</summary>
+        public static bool EnsureInitialized()
         {
             if (_initialized) return true;
             if (_failed) return false;
@@ -41,12 +42,8 @@ namespace RimSynapse.LocalTts
                         return false;
                     }
 
-                    int err = EspeakNative.SetVoiceByName(voice);
-                    if (err != 0)
-                        SynapseLogger.Warning($"[LocalTTS] espeak SetVoiceByName('{voice}') returned {err}; continuing with default voice.");
-
                     _initialized = true;
-                    SynapseLogger.Message($"[LocalTTS] espeak-ng initialized ({rate} Hz internal), voice '{voice}'.");
+                    SynapseLogger.Message($"[LocalTTS] espeak-ng initialized ({rate} Hz internal).");
                     return true;
                 }
                 catch (Exception ex)
@@ -58,14 +55,28 @@ namespace RimSynapse.LocalTts
             }
         }
 
-        /// <summary>Convert arbitrary English text into a string of IPA phonemes.</summary>
-        public static string Phonemize(string text)
+        /// <summary>Select the espeak voice/language (cached; only re-set when it changes).</summary>
+        private static void SetLanguage(string lang)
+        {
+            if (string.IsNullOrEmpty(lang) || lang == _currentLang) return;
+            int err = EspeakNative.SetVoiceByName(lang);
+            if (err != 0)
+                SynapseLogger.Warning($"[LocalTTS] espeak SetVoiceByName('{lang}') returned {err}; using previous voice.");
+            else
+                _currentLang = lang;
+        }
+
+        /// <summary>
+        /// Convert text into IPA phonemes using the given espeak language (e.g. "en-us", "en-gb").
+        /// </summary>
+        public static string Phonemize(string text, string lang = "en-us")
         {
             if (string.IsNullOrWhiteSpace(text)) return string.Empty;
             if (!EnsureInitialized()) return string.Empty;
 
             lock (_lock)
             {
+                SetLanguage(lang);
                 IntPtr buf = IntPtr.Zero;
                 try
                 {

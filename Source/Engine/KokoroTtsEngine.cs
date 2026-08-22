@@ -21,7 +21,10 @@ namespace RimSynapse.LocalTts
         {
             public string Text;
             public string Voice;
+            public string BlendVoice;
+            public float BlendAmount;
             public float Speed;
+            public float Volume = 1f;
             public bool WarmupOnly;
             public Action<float[]> OnSamples; // optional raw-sample callback (for debug/inspection)
         }
@@ -54,7 +57,10 @@ namespace RimSynapse.LocalTts
             _worker.Start();
         }
 
-        /// <summary>Queue text for synthesis + playback. Returns immediately.</summary>
+        /// <summary>
+        /// Queue text for synthesis + playback using the current settings (voice, blend, speed,
+        /// volume). Returns immediately.
+        /// </summary>
         public void Speak(string text, string voice = null, float? speed = null)
         {
             var settings = LocalTtsMod.Instance?.Settings;
@@ -69,14 +75,27 @@ namespace RimSynapse.LocalTts
             {
                 Text = text,
                 Voice = voice ?? settings?.defaultVoice ?? "af_heart",
+                BlendVoice = settings?.blendVoice ?? "",
+                BlendAmount = settings?.blendAmount ?? 0f,
                 Speed = speed ?? settings?.speed ?? 1.0f,
+                Volume = settings?.volume ?? 1f,
             });
         }
 
         /// <summary>Synthesize without playing, returning raw float samples through a callback.</summary>
         public void Synthesize(string text, string voice, float speed, Action<float[]> onSamples)
         {
-            Enqueue(new Request { Text = text, Voice = voice, Speed = speed, OnSamples = onSamples });
+            var settings = LocalTtsMod.Instance?.Settings;
+            Enqueue(new Request
+            {
+                Text = text,
+                Voice = voice,
+                BlendVoice = settings?.blendVoice ?? "",
+                BlendAmount = settings?.blendAmount ?? 0f,
+                Speed = speed,
+                Volume = settings?.volume ?? 1f,
+                OnSamples = onSamples,
+            });
         }
 
         /// <summary>Warm the engine (load natives + session) ahead of the first Speak.</summary>
@@ -186,7 +205,8 @@ namespace RimSynapse.LocalTts
 
         private void ProcessRequest(Request req)
         {
-            string phonemes = EspeakG2P.Phonemize(req.Text);
+            string lang = VoiceCatalog.EspeakLangFor(req.Voice);
+            string phonemes = EspeakG2P.Phonemize(req.Text, lang);
             if (string.IsNullOrEmpty(phonemes))
             {
                 SynapseLogger.Warning($"[LocalTTS] No phonemes produced for: \"{Trim(req.Text)}\"");
@@ -200,7 +220,7 @@ namespace RimSynapse.LocalTts
                 return;
             }
 
-            float[] style = VoiceStyleBank.GetStyle(req.Voice, ids.Count);
+            float[] style = VoiceStyleBank.GetBlendedStyle(req.Voice, req.BlendVoice, req.BlendAmount, ids.Count);
             if (style == null)
             {
                 LastError = $"Voice '{req.Voice}' unavailable.";
@@ -215,6 +235,13 @@ namespace RimSynapse.LocalTts
             {
                 SynapseLogger.Warning("[LocalTTS] Model returned no audio samples.");
                 return;
+            }
+
+            // Apply output gain.
+            if (req.Volume != 1f && req.Volume > 0f)
+            {
+                for (int i = 0; i < samples.Length; i++)
+                    samples[i] *= req.Volume;
             }
 
             float seconds = samples.Length / (float)PcmEncoder.SampleRate;
