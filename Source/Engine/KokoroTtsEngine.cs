@@ -40,11 +40,11 @@ namespace RimSynapse.LocalTts
         public string LastError { get; private set; }
         public int QueueDepth => _queue.Count;
 
-        /// <summary>Estimated VRAM footprint of the loaded model in MB (0 until loaded / on CPU).</summary>
+        /// <summary>Estimated VRAM footprint of the loaded model in MB (0 until loaded).</summary>
         public float EstimatedVramMb { get; private set; }
 
-        /// <summary>Stable id used when registering this engine as a GPU-memory consumer with Core.</summary>
-        private const string ConsumerModId = "rimsynapse.localtts";
+        /// <summary>True when the model is actually resident on the GPU (vs CPU). Read by the NVIDIA Tool.</summary>
+        public bool ResidentOnGpu => _session.OnGpu;
 
         public void Start()
         {
@@ -165,10 +165,9 @@ namespace RimSynapse.LocalTts
         }
 
         /// <summary>
-        /// Estimate the model's VRAM footprint and register it with Core's GPU-memory-consumers
-        /// channel so a monitor mod (NVIDIA Tool) can surface it. When the session runs on CPU the
-        /// consumer reports 0 (resident = false); RimWorld's DirectML allocation would otherwise be
-        /// invisible inside the game's own process VRAM.
+        /// Estimate the model's VRAM footprint. Exposed via <see cref="EstimatedVramMb"/> /
+        /// <see cref="ResidentOnGpu"/> and read by the NVIDIA Tool through reflection (optional
+        /// dependency, no Core coupling). On CPU the model isn't in VRAM, so ResidentOnGpu is false.
         /// </summary>
         private void PublishVramFootprint()
         {
@@ -180,15 +179,12 @@ namespace RimSynapse.LocalTts
                 const float SessionOverheadMb = 64f;
                 EstimatedVramMb = modelMb + SessionOverheadMb;
 
-                RimSynapse.SynapseClient.Gpu?.UpsertConsumer(
-                    ConsumerModId, "Local TTS (Kokoro)", EstimatedVramMb, _session.OnGpu);
-
-                SynapseLogger.Message($"[LocalTTS] Registered VRAM consumer: ~{EstimatedVramMb:F0} MB " +
+                SynapseLogger.Message($"[LocalTTS] Model VRAM footprint ~{EstimatedVramMb:F0} MB " +
                                       $"({(_session.OnGpu ? "resident on GPU" : "CPU — not resident")}).");
             }
             catch (Exception ex)
             {
-                SynapseLogger.Warning($"[LocalTTS] Failed to publish VRAM footprint: {ex.Message}");
+                SynapseLogger.Warning($"[LocalTTS] Failed to estimate VRAM footprint: {ex.Message}");
             }
         }
 
@@ -265,9 +261,6 @@ namespace RimSynapse.LocalTts
             _disposed = true;
             _queue.CompleteAdding();
             _session.Dispose();
-            // Model is unloaded — stop reporting VRAM residency.
-            try { RimSynapse.SynapseClient.Gpu?.UpsertConsumer(ConsumerModId, "Local TTS (Kokoro)", 0f, false); }
-            catch { /* Core may already be torn down */ }
         }
     }
 }
