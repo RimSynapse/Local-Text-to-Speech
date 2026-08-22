@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ModMetaData>
+    <name>RimSynapse - Local Text-to-Speech</name>
+    <author>RimSynapse Team</author>
+    <packageId>RimSynapse.LocalTTS</packageId>
+    <url>https://github.com/RimSynapse/Local-Text-to-Speech</url>
+    <modVersion>0.1.0</modVersion>
+    <supportedVersions>
+        <li>1.6</li>
+    </supportedVersions>
+    <modDependencies>
+        <li>
+            <packageId>RimSynapse.Core</packageId>
+            <displayName>RimSynapse - Core</displayName>
+            <downloadUrl>https://github.com/RimSynapse/Core/releases/latest</downloadUrl>
+            <steamWorkshopUrl>steam://url/CommunityFilePage/3760829776</steamWorkshopUrl>
+        </li>
+    </modDependencies>
+    <loadAfter>
+        <li>RimSynapse.Core</li>
+    </loadAfter>
+    <description>
+Discord Community: https://discord.gg/eVBebZ2N9s
+Version: v0.1.0 (Target: RimWorld 1.6)
+
+RimSynapse - Local Text-to-Speech
+Official Wiki and Documentation: https://github.com/RimSynapse/Local-Text-to-Speech/wiki
+
+Fully offline, on-device neural text-to-speech for RimSynapse, powered by the
+Kokoro-82M model running through ONNX Runtime. No API keys, no cloud calls, no
+network required once the model is installed — all synthesis happens on your own
+machine.
+
+--- Core Systems ---
+- Kokoro-82M Neural Voice: A compact, high-quality 82M-parameter TTS model bundled
+  with the mod. Produces natural 24kHz speech entirely on-device.
+- Automatic Hardware Acceleration: Synthesis runs asynchronously on a background
+  thread so the game never stutters. Uses your GPU via DirectML when a compatible
+  graphics card is present (any DirectX 12 GPU — NVIDIA, AMD, or Intel), and falls
+  back to multi-threaded CPU inference otherwise.
+- Zero-Latency Playback: Generated audio is streamed straight into RimWorld's audio
+  system through RimSynapse Core's shared playback pipeline.
+- Espeak-ng Phonemization: Bundled grapheme-to-phoneme conversion turns arbitrary
+  English text into the phonemes Kokoro expects.
+
+--- Requirements ---
+- RimSynapse Core (Must be loaded before this mod)
+- Windows 64-bit
+- ~350 MB free disk space for the bundled model
+
+--- Note ---
+This is an optional voice backend for the RimSynapse suite. It is fully local and
+does not transmit any text or audio off your machine.
+
+--- Support the Project ---
+Buy me a coffee: https://buymeacoffee.com/archdukejim
+    </description>
+</ModMetaData>
