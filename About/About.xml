@@ -1,35 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ModMetaData>
-    <name>RimSynapse - Local Text-to-Speech</name>
-    <author>RimSynapse Team</author>
-    <packageId>RimSynapse.LocalTTS</packageId>
-    <url>https://github.com/RimSynapse/Local-Text-to-Speech</url>
-    <modVersion>0.1.0</modVersion>
+    <name>Local TTS</name>
+    <author>ArchdukeJim</author>
+    <packageId>ArchdukeJim.LocalTTS</packageId>
+    <url>https://github.com/archdukejim/Local-Text-to-Speech</url>
+    <modVersion>1.0.0</modVersion>
     <supportedVersions>
         <li>1.6</li>
     </supportedVersions>
-    <modDependencies>
-        <li>
-            <packageId>RimSynapse.Core</packageId>
-            <displayName>RimSynapse - Core</displayName>
-            <downloadUrl>https://github.com/RimSynapse/Core/releases/latest</downloadUrl>
-            <steamWorkshopUrl>steam://url/CommunityFilePage/3760829776</steamWorkshopUrl>
-        </li>
-    </modDependencies>
+    <!-- No dependencies: Local TTS is standalone. RimSynapse Core is optional — when it is
+         present we load after it so the soft integration (GPU stats reporting) can bind. -->
     <loadAfter>
         <li>RimSynapse.Core</li>
     </loadAfter>
     <description>
 Discord Community: https://discord.gg/eVBebZ2N9s
-Version: v0.1.0 (Target: RimWorld 1.6)
+Version: v1.0.0 (Target: RimWorld 1.6)
 
-RimSynapse - Local Text-to-Speech
-Official Wiki and Documentation: https://github.com/RimSynapse/Local-Text-to-Speech/wiki
+Local TTS
+Official Wiki and Documentation: https://github.com/archdukejim/Local-Text-to-Speech/wiki
 
-Fully offline, on-device neural text-to-speech for RimSynapse, powered by the
-Kokoro-82M model running through ONNX Runtime. No API keys, no cloud calls, no
-network required once the model is installed — all synthesis happens on your own
-machine.
+Fully offline, on-device neural text-to-speech, powered by the Kokoro-82M model
+running through ONNX Runtime. No API keys, no cloud calls, no network required
+once the model is installed — all synthesis happens on your own machine.
+
+Standalone: no other mod is required. Other mods can request speech through the
+async broker API — a line is synthesized in the background, staged as an audio
+file, and the requesting mod is told when it is ready and where.
 
 --- Core Systems ---
 - Kokoro-82M Neural Voice: A compact, high-quality 82M-parameter TTS model bundled
@@ -38,19 +35,23 @@ machine.
   thread so the game never stutters. Uses your GPU via DirectML when a compatible
   graphics card is present (any DirectX 12 GPU — NVIDIA, AMD, or Intel), and falls
   back to multi-threaded CPU inference otherwise.
-- Zero-Latency Playback: Generated audio is streamed straight into RimWorld's audio
-  system through RimSynapse Core's shared playback pipeline.
+- Async Broker API: Any mod can request a line; the audio file is generated and
+  staged in the background, with a ready-notification when it can be played.
+- 29 Voices with Blending: Pick any bundled voice, blend two for a custom timbre,
+  and audition any line from the mod settings.
 - Espeak-ng Phonemization: Bundled grapheme-to-phoneme conversion turns arbitrary
   English text into the phonemes Kokoro expects.
 
 --- Requirements ---
-- RimSynapse Core (Must be loaded before this mod)
 - Windows 64-bit
 - ~350 MB free disk space for the bundled model
 
+--- RimSynapse ---
+Works standalone. When RimSynapse Core is installed, Local TTS additionally
+reports its GPU memory footprint to Core's GPU stats channel.
+
 --- Note ---
-This is an optional voice backend for the RimSynapse suite. It is fully local and
-does not transmit any text or audio off your machine.
+Fully local: no text or audio ever leaves your machine.
 
 --- Support the Project ---
 Buy me a coffee: https://buymeacoffee.com/archdukejim

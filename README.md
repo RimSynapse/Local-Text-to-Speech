@@ -1,12 +1,14 @@
-# RimSynapse — Local Text-to-Speech
+# Local TTS
 
-Fully offline, on-device neural text-to-speech for the RimSynapse suite, powered by the
-**Kokoro-82M** model running through **ONNX Runtime**. No API keys, no cloud calls.
+Fully offline, on-device neural text-to-speech for RimWorld, powered by the **Kokoro-82M**
+model running through **ONNX Runtime**. No API keys, no cloud calls. **Standalone** — no other
+mod required; RimSynapse Core is an optional soft integration (GPU stats reporting).
 
 - **GPU** acceleration via **DirectML** (any DirectX 12 GPU — NVIDIA/AMD/Intel), with automatic
   **CPU** fallback.
-- Synthesis runs **asynchronously** on a background worker thread; audio is played through
-  RimSynapse Core's shared `AudioPlaybackManager`.
+- Synthesis runs **asynchronously** on a background worker thread. As of v1.0.0 (in progress,
+  issue #12) audio is **staged as a file** and the requesting mod is notified when it's ready —
+  the current build still plays through RimSynapse Core's `AudioPlaybackManager`.
 - English grapheme→phoneme via bundled **espeak-ng**.
 
 ## Layout
@@ -63,5 +65,6 @@ All three are headlessly triggerable via the dev-tools `run_debug_action` bridge
 
 ## Requirements
 
-- RimSynapse Core (loads first)
 - Windows 64-bit
+- Optional: RimSynapse Core v0.9.0+ (loads first when present; enables GPU stats reporting).
+  The current build still hard-references Core — the standalone decoupling is issue #12.
