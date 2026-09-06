@@ -1,0 +1,38 @@
+[b]Discord Community:[/b] [url=https://discord.gg/eVBebZ2N9s]https://discord.gg/eVBebZ2N9s[/url]
+[b]Version:[/b] v1.0.0 (Target: RimWorld 1.6)
+
+[h1]Local TTS[/h1]
+[b][url=https://github.com/archdukejim/Local-Text-to-Speech/wiki]Official Wiki and Documentation[/url][/b]
+[b]Fully offline, on-device neural text-to-speech for RimWorld.[/b]
+
+Powered by the Kokoro-82M model running through ONNX Runtime. No API keys, no cloud calls, no network required once the model is installed — all synthesis happens on your own machine. Standalone: no other mod required.
+
+---
+
+[h2]Key Features[/h2]
+[list]
+[*] [b]Kokoro-82M Neural Voice:[/b] A compact, high-quality 82M-parameter TTS model bundled with the mod. Produces natural 24kHz speech entirely on-device.
+[*] [b]Automatic Hardware Acceleration:[/b] Synthesis runs asynchronously on a background thread so the game never stutters. Uses your GPU via DirectML when a compatible graphics card is present (any DirectX 12 GPU — NVIDIA, AMD, or Intel), and falls back to multi-threaded CPU inference otherwise.
+[*] [b]Async Broker API for Modders:[/b] Any mod can request a spoken line. The audio file is generated and staged in the background, and the requesting mod is notified when it is ready and where — with caching so a repeated line never synthesizes twice.
+[*] [b]29 English Voices with Blending:[/b] Pick any bundled voice, blend two together for a custom timbre, and tune speed and volume — with an open text box to audition any line from the mod settings.
+[*] [b]Espeak-ng Phonemization:[/b] Bundled grapheme-to-phoneme conversion turns arbitrary English text into the phonemes Kokoro expects.
+[/list]
+
+---
+
+[h2]Requirements[/h2]
+[list]
+[*] Windows 64-bit
+[*] ~350 MB free disk space for the bundled model
+[/list]
+
+[h2]RimSynapse[/h2]
+Works standalone. When [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3760829776]RimSynapse Core[/url] is installed, Local TTS additionally reports its GPU memory footprint to Core's GPU stats channel and serves as an embedded voice backend for the suite.
+
+[h2]Note[/h2]
+Fully local: no text or audio ever leaves your machine.
+
+---
+
+[h2]Support the Project[/h2]
+Buy me a coffee: [url=https://buymeacoffee.com/archdukejim]https://buymeacoffee.com/archdukejim[/url]
