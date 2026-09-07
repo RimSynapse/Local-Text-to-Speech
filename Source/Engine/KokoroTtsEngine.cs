@@ -2,7 +2,6 @@ using System;
 using System.Collections.Concurrent;
 using System.IO;
 using System.Threading;
-using RimSynapse;
 
 namespace RimSynapse.LocalTts
 {
@@ -191,16 +190,10 @@ namespace RimSynapse.LocalTts
                 TtsLog.Warning($"[LocalTTS] Failed to estimate VRAM footprint: {ex.Message}");
             }
 
-            // Register with Core's shared channel regardless of estimate outcome; a non-resident
-            // (CPU) session reports 0 MB. Guarded so a Core without the channel can't break the engine.
-            try
-            {
-                SynapseClient.Gpu?.UpsertConsumer(GpuConsumerModId, "Local TTS (Kokoro)", EstimatedVramMb, _session.OnGpu);
-            }
-            catch (Exception ex)
-            {
-                TtsLog.Warning($"[LocalTTS] Could not register GPU consumer with Core: {ex.Message}");
-            }
+            // Report to Core's shared channel if Core is loaded — via reflection, so this is a
+            // no-op when Core is absent (Local TTS is standalone). A non-resident (CPU) session
+            // reports 0 MB. The bridge swallows its own failures; it can never break the engine.
+            CoreGpuBridge.UpsertConsumer(GpuConsumerModId, "Local TTS (Kokoro)", EstimatedVramMb, _session.OnGpu);
         }
 
         private static bool ResolvePreferGpu()
@@ -279,9 +272,9 @@ namespace RimSynapse.LocalTts
             _queue.CompleteAdding();
             _session.Dispose();
 
-            // Model is gone from VRAM — drop our row from Core's consumers channel (Core #104).
-            try { SynapseClient.Gpu?.RemoveConsumer(GpuConsumerModId); }
-            catch { /* Core without the channel; nothing to clean up */ }
+            // Model is gone from VRAM — drop our row from Core's consumers channel if Core is
+            // present (reflection; no-op otherwise).
+            CoreGpuBridge.RemoveConsumer(GpuConsumerModId);
         }
     }
 }

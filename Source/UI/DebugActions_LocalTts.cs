@@ -1,6 +1,5 @@
 using System.Text;
 using LudeonTK;
-using RimSynapse;
 
 namespace RimSynapse.LocalTts.UI
 {

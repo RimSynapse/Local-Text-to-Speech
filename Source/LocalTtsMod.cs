@@ -1,13 +1,13 @@
 using System.Collections.Generic;
-using RimSynapse.Utils;
 using UnityEngine;
 using Verse;
 
 namespace RimSynapse.LocalTts
 {
     /// <summary>
-    /// Mod entry point for RimSynapse Local Text-to-Speech. Wires up asset paths, registers with
-    /// Core, and owns the async Kokoro engine.
+    /// Mod entry point for Local TTS. Stands up the main-thread pump and audio player, wires up
+    /// asset paths, and owns the async Kokoro engine. Standalone — no RimSynapse Core dependency;
+    /// Core integration (GPU stats) is optional and bound by reflection.
     /// </summary>
     public class LocalTtsMod : Mod
     {
@@ -32,9 +32,6 @@ namespace RimSynapse.LocalTts
 
             // Resolve where the bundled model + native libraries live.
             TtsAssets.Init(content.RootDir);
-
-            // Register with Core (no system prompt — this mod makes no LLM calls).
-            SynapseCore.Register("rimsynapse.localtts", "RimSynapse Local TTS");
 
             // Spin up the async engine and warm it in the background so the first line is fast.
             Engine = new KokoroTtsEngine();
