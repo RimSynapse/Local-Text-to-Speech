@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Verse;
 
-namespace RimSynapse.LocalTts
+namespace LocalTts
 {
     /// <summary>
     /// Mod entry point for Local TTS. Stands up the main-thread pump and audio player, wires up
@@ -44,11 +44,11 @@ namespace RimSynapse.LocalTts
             if (Settings.enabled && TtsAssets.ModelInstalled)
                 Engine.Warmup();
 
-            TtsLog.Message("[LocalTTS] RimSynapse Local Text-to-Speech loaded. " +
+            TtsLog.Message("[LocalTTS] Local TTS loaded. " +
                                   (TtsAssets.ModelInstalled ? "Model present." : "Model NOT installed — run download-assets.ps1."));
         }
 
-        public override string SettingsCategory() => "RimSynapse Local TTS";
+        public override string SettingsCategory() => "Local TTS";
 
         public override void DoSettingsWindowContents(Rect inRect)
         {

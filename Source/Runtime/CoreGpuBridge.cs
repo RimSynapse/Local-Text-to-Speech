@@ -2,7 +2,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 
-namespace RimSynapse.LocalTts
+namespace LocalTts
 {
     /// <summary>
     /// Optional soft integration with RimSynapse Core's GPU-memory stats channel (Core #104),

@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace RimSynapse.LocalTts
+namespace LocalTts
 {
     /// <summary>
     /// Local TTS's own audio output. Replaces the dependency on RimSynapse Core's

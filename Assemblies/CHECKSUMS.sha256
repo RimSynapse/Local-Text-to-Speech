@@ -1,9 +1,10 @@
-# RimSynapse Local-Text-to-Speech — shipped assembly manifest
-# version: 0.1.0
-# commit:  a464761
+# Local TTS — shipped assembly manifest
+# version: 1.0.0
 # format:  sha256sum — verify with 'verify-binaries.ps1' or 'sha256sum -c'
+3b1fe42df5e2dc719ad5b2939c108720feb1d87216016973f64b47e7b680c128  LocalTts.dll
 a538488a0f834a36c43f64e7f19481e9e912ad87452e1ef31122d739c5cc7dad  Microsoft.ML.OnnxRuntime.dll
-cbcee3661c2a3191af12d118d3008b2f02ea009614a17a78229efd8758e11088  RimSynapseLocalTts.dll
 c65fff603b283dc966d1a8b730c11d5e5e750e8021bd24640612f6cc3f2c6fb7  System.Buffers.dll
 11590d8bb3b12f29f4202b3ef8593229a5cd6debb61e76cba9ac5493a82ee382  System.Memory.dll
 17924e5dc87e0d6229d2dd0bcfc1fdfabd820901b13a68baa89fcb80c4d1a67f  System.Numerics.Vectors.dll
+01748200f2400c742aa689f1f5101bd6298efdfd92c00c18f4fa473847235ba9  System.Runtime.CompilerServices.Unsafe.dll
+09901f63ebc4b8f0897b0128fb230c146529aee5c5cc90d7a7872e66a976bb5f  System.Threading.Tasks.Extensions.dll

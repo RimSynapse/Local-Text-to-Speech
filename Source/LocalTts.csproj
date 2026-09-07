@@ -4,8 +4,8 @@
 
     <PropertyGroup>
         <TargetFramework>net48</TargetFramework>
-        <AssemblyName>RimSynapseLocalTts</AssemblyName>
-        <RootNamespace>RimSynapse.LocalTts</RootNamespace>
+        <AssemblyName>LocalTts</AssemblyName>
+        <RootNamespace>LocalTts</RootNamespace>
         <LangVersion>9.0</LangVersion>
         <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
         <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>

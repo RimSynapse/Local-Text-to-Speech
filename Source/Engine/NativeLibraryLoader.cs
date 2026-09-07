@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using System.Runtime.InteropServices;
 
-namespace RimSynapse.LocalTts
+namespace LocalTts
 {
     /// <summary>
     /// Preloads the bundled native DLLs (ONNX Runtime + DirectML + espeak-ng) by absolute path

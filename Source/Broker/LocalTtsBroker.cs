@@ -6,7 +6,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace RimSynapse.LocalTts
+namespace LocalTts
 {
     /// <summary>
     /// The public, reflection-friendly entry point any mod uses to get speech from Local TTS

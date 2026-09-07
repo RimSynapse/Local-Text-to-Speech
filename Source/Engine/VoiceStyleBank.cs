@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace RimSynapse.LocalTts
+namespace LocalTts
 {
     /// <summary>
     /// Loads Kokoro voice style vectors. Each voice ships as a raw float32 <c>.bin</c> of shape

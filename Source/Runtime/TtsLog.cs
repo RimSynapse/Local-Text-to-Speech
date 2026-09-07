@@ -1,4 +1,4 @@
-namespace RimSynapse.LocalTts
+namespace LocalTts
 {
     /// <summary>
     /// Local TTS's internal logger. Replaces the dependency on RimSynapse Core's SynapseLogger:

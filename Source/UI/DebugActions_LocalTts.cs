@@ -1,11 +1,11 @@
 using System.Text;
 using LudeonTK;
 
-namespace RimSynapse.LocalTts.UI
+namespace LocalTts.UI
 {
     /// <summary>
-    /// RimSynapse debug menu actions for Local TTS. These bypass any trigger conditions and
-    /// exercise the synthesis pipeline directly, satisfying the RimSynapse debug-command
+    /// Local TTS debug menu actions. These bypass any trigger conditions and
+    /// exercise the synthesis pipeline directly, satisfying the debug-command
     /// validation gate. Each is headlessly triggerable via the dev-tools run_debug_action bridge.
     /// </summary>
     public static class DebugActions_LocalTts
@@ -13,7 +13,7 @@ namespace RimSynapse.LocalTts.UI
         private const string TestLine = "Hello, colonist. Local text to speech is now online.";
 
         /// <summary>Full path: synthesize the test line and play it (needs an active game for audio).</summary>
-        [DebugAction("RimSynapse", "LocalTTS: Speak test line", actionType = DebugActionType.Action)]
+        [DebugAction("Local TTS", "LocalTTS: Speak test line", actionType = DebugActionType.Action)]
         private static void SpeakTestLine()
         {
             var engine = LocalTtsMod.Instance?.Engine;
@@ -26,7 +26,7 @@ namespace RimSynapse.LocalTts.UI
         /// Headless proof-of-function: runs native load → espeak → tokenize → ONNX inference and
         /// logs the result WITHOUT needing audio playback (so it validates from the main menu too).
         /// </summary>
-        [DebugAction("RimSynapse", "LocalTTS: Synthesize + dump stats (Log)", actionType = DebugActionType.Action)]
+        [DebugAction("Local TTS", "LocalTTS: Synthesize + dump stats (Log)", actionType = DebugActionType.Action)]
         private static void SynthesizeAndDump()
         {
             var engine = LocalTtsMod.Instance?.Engine;
@@ -51,7 +51,7 @@ namespace RimSynapse.LocalTts.UI
         /// the async file-staging contract (#12). Also exercises the cache: a second identical
         /// request must resolve to the same file as an instant hit.
         /// </summary>
-        [DebugAction("RimSynapse", "LocalTTS: Broker request + stage file (Log)", actionType = DebugActionType.Action)]
+        [DebugAction("Local TTS", "LocalTTS: Broker request + stage file (Log)", actionType = DebugActionType.Action)]
         private static void BrokerStageFile()
         {
             string ticket = LocalTtsBroker.RequestSpeech(TestLine);
@@ -83,7 +83,7 @@ namespace RimSynapse.LocalTts.UI
         }
 
         /// <summary>Dump the current engine + asset status to the log.</summary>
-        [DebugAction("RimSynapse", "LocalTTS: Dump engine status (Log)", actionType = DebugActionType.Action)]
+        [DebugAction("Local TTS", "LocalTTS: Dump engine status (Log)", actionType = DebugActionType.Action)]
         private static void DumpStatus()
         {
             var mod = LocalTtsMod.Instance;

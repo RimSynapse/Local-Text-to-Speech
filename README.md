@@ -40,7 +40,7 @@ Large binaries (model + native libs) are kept out of git and fetched per machine
    ```
 3. Build (this also stages the ONNX Runtime managed + native DirectML binaries into the mod):
    ```bash
-   dotnet build Source/RimSynapseLocalTts.csproj -c Release
+   dotnet build Source/LocalTts.csproj -c Release
    ```
 
 ## Using it

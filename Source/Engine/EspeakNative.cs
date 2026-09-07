@@ -1,7 +1,7 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace RimSynapse.LocalTts
+namespace LocalTts
 {
     /// <summary>
     /// Raw P/Invoke surface for espeak-ng (espeak-ng.dll). Only the entry points needed for

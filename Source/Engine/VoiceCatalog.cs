@@ -3,7 +3,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 
-namespace RimSynapse.LocalTts
+namespace LocalTts
 {
     /// <summary>One built-in Kokoro voice, described from its id and naming convention.</summary>
     public sealed class VoiceInfo

@@ -1,6 +1,6 @@
 using Verse;
 
-namespace RimSynapse.LocalTts
+namespace LocalTts
 {
     public enum AccelerationMode
     {

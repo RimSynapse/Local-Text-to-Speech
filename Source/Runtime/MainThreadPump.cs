@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace RimSynapse.LocalTts
+namespace LocalTts
 {
     /// <summary>
     /// A persistent Unity component that drains <see cref="MainThreadDispatcher"/> once per frame,

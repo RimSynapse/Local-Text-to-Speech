@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 
-namespace RimSynapse.LocalTts
+namespace LocalTts
 {
     /// <summary>
     /// Writes Kokoro's mono float output as a standard 16-bit PCM WAV file — the format the broker

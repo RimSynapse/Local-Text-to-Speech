@@ -4,7 +4,7 @@ using System.Linq;
 using Microsoft.ML.OnnxRuntime;
 using Microsoft.ML.OnnxRuntime.Tensors;
 
-namespace RimSynapse.LocalTts
+namespace LocalTts
 {
     /// <summary>
     /// Wraps the Kokoro ONNX <see cref="InferenceSession"/>. Selects the DirectML execution

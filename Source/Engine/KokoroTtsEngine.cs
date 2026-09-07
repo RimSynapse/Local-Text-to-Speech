@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 using System.IO;
 using System.Threading;
 
-namespace RimSynapse.LocalTts
+namespace LocalTts
 {
     /// <summary>
     /// Asynchronous Kokoro TTS pipeline. Requests are queued and processed on a single dedicated
@@ -51,7 +51,7 @@ namespace RimSynapse.LocalTts
             if (_worker != null) return;
             _worker = new Thread(WorkerLoop)
             {
-                Name = "RimSynapse-KokoroTTS",
+                Name = "LocalTTS-Kokoro",
                 IsBackground = true,
             };
             _worker.Start();

@@ -1,6 +1,6 @@
 using System.IO;
 
-namespace RimSynapse.LocalTts
+namespace LocalTts
 {
     /// <summary>
     /// Resolves the on-disk locations of every bundled runtime asset relative to the mod's

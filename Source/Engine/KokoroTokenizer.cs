@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace RimSynapse.LocalTts
+namespace LocalTts
 {
     /// <summary>
     /// Turns a string of IPA phonemes into Kokoro input token ids.

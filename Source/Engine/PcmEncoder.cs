@@ -1,6 +1,6 @@
 using System;
 
-namespace RimSynapse.LocalTts
+namespace LocalTts
 {
     /// <summary>
     /// Converts Kokoro's float32 waveform output (mono, 24 kHz, nominally in [-1, 1]) into the

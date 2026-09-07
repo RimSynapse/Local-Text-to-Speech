@@ -107,4 +107,4 @@ Sources:
 Write-Host ""
 Write-Host "Done. Model dir: $modelsDir"
 Write-Host "Native dir:      $nativeDir"
-Write-Host "Remember to build Source\RimSynapseLocalTts.csproj so the ONNX Runtime DLLs are staged."
+Write-Host "Remember to build Source\LocalTts.csproj so the ONNX Runtime DLLs are staged."
