@@ -24,7 +24,9 @@ namespace RimSynapse.LocalTts
             public float Speed;
             public float Volume = 1f;
             public bool WarmupOnly;
-            public Action<float[]> OnSamples; // optional raw-sample callback (for debug/inspection)
+            // Optional result sink: (samples, error). On success error is null; on failure samples
+            // is null and error carries the reason (so the broker can surface it, never hang a ticket).
+            public Action<float[], string> OnResult;
         }
 
         private readonly BlockingCollection<Request> _queue = new BlockingCollection<Request>(new ConcurrentQueue<Request>());
@@ -92,7 +94,31 @@ namespace RimSynapse.LocalTts
                 BlendAmount = settings?.blendAmount ?? 0f,
                 Speed = speed,
                 Volume = settings?.volume ?? 1f,
-                OnSamples = onSamples,
+                OnResult = (samples, _) => onSamples?.Invoke(samples),
+            });
+        }
+
+        /// <summary>
+        /// Full-spec synthesis for the broker: renders <paramref name="text"/> with an explicit
+        /// voice/blend/speed/volume and delivers the finished mono samples (gain already applied)
+        /// through <paramref name="onResult"/> — <c>(samples, null)</c> on success, or
+        /// <c>(null, reason)</c> on failure. Does not play; the broker stages a file and/or plays.
+        /// An empty <paramref name="voice"/> falls back to the configured default voice.
+        /// </summary>
+        public void Render(string text, string voice, string blendVoice, float blendAmount,
+                           float speed, float volume, Action<float[], string> onResult)
+        {
+            if (string.IsNullOrWhiteSpace(text)) { onResult?.Invoke(null, "empty text"); return; }
+            string defaultVoice = LocalTtsMod.Instance?.Settings?.defaultVoice ?? "af_heart";
+            Enqueue(new Request
+            {
+                Text = text,
+                Voice = string.IsNullOrEmpty(voice) ? defaultVoice : voice,
+                BlendVoice = blendVoice ?? "",
+                BlendAmount = blendAmount,
+                Speed = speed <= 0f ? 1f : speed,
+                Volume = volume <= 0f ? 1f : volume,
+                OnResult = onResult,
             });
         }
 
@@ -130,6 +156,7 @@ namespace RimSynapse.LocalTts
                 {
                     LastError = ex.Message;
                     TtsLog.Error($"[LocalTTS] Synthesis error: {ex}");
+                    try { req.OnResult?.Invoke(null, ex.Message); } catch { /* sink threw; ignore */ }
                 }
             }
         }
@@ -209,59 +236,55 @@ namespace RimSynapse.LocalTts
 
         private void ProcessRequest(Request req)
         {
-            string lang = VoiceCatalog.EspeakLangFor(req.Voice);
-            string phonemes = EspeakG2P.Phonemize(req.Text, lang);
-            if (string.IsNullOrEmpty(phonemes))
-            {
-                TtsLog.Warning($"[LocalTTS] No phonemes produced for: \"{Trim(req.Text)}\"");
-                return;
-            }
-
-            var ids = KokoroTokenizer.Encode(phonemes);
-            if (ids.Count == 0)
-            {
-                TtsLog.Warning("[LocalTTS] No in-vocabulary tokens produced.");
-                return;
-            }
-
-            float[] style = VoiceStyleBank.GetBlendedStyle(req.Voice, req.BlendVoice, req.BlendAmount, ids.Count);
-            if (style == null)
-            {
-                LastError = $"Voice '{req.Voice}' unavailable.";
-                return;
-            }
-
             long t0 = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-            float[] samples = _session.Run(ids, style, req.Speed);
+            float[] samples = RunPipeline(req, out string error);
             long ms = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() - t0;
 
-            if (samples == null || samples.Length == 0)
+            if (samples == null)
             {
-                TtsLog.Warning("[LocalTTS] Model returned no audio samples.");
+                LastError = error;
+                TtsLog.Warning($"[LocalTTS] {error} (voice '{req.Voice}')");
+                req.OnResult?.Invoke(null, error); // never leave a broker ticket hanging
                 return;
-            }
-
-            // Apply output gain.
-            if (req.Volume != 1f && req.Volume > 0f)
-            {
-                for (int i = 0; i < samples.Length; i++)
-                    samples[i] *= req.Volume;
             }
 
             float seconds = samples.Length / (float)PcmEncoder.SampleRate;
             TtsLog.Message($"[LocalTTS] Synthesized {seconds:F1}s in {ms}ms on {_session.ActiveProvider} " +
-                                  $"({ids.Count} tokens, voice '{req.Voice}').");
+                                  $"(voice '{req.Voice}').");
 
-            if (req.OnSamples != null)
-            {
-                req.OnSamples(samples);
-                return;
-            }
+            // A result sink (broker/debug) takes the samples; otherwise this is a plain Speak → play.
+            if (req.OnResult != null)
+                req.OnResult(samples, null);
+            else
+                TtsAudioPlayer.Play(samples, PcmEncoder.SampleRate);
+        }
 
-            // Play the raw samples directly through our own player (no PCM round-trip needed for
-            // playback; PcmEncoder is still used when the broker stages a WAV file). The player
-            // marshals the Unity AudioClip work onto the main thread itself.
-            TtsAudioPlayer.Play(samples, PcmEncoder.SampleRate);
+        /// <summary>
+        /// The synthesis pipeline: text → espeak phonemes → tokens → blended style → ONNX → mono
+        /// float samples with output gain applied. Returns null and sets <paramref name="error"/>
+        /// on any stage failure, so every caller path can report rather than fall silent.
+        /// </summary>
+        private float[] RunPipeline(Request req, out string error)
+        {
+            error = null;
+
+            string lang = VoiceCatalog.EspeakLangFor(req.Voice);
+            string phonemes = EspeakG2P.Phonemize(req.Text, lang);
+            if (string.IsNullOrEmpty(phonemes)) { error = $"No phonemes produced for \"{Trim(req.Text)}\""; return null; }
+
+            var ids = KokoroTokenizer.Encode(phonemes);
+            if (ids.Count == 0) { error = "No in-vocabulary tokens produced"; return null; }
+
+            float[] style = VoiceStyleBank.GetBlendedStyle(req.Voice, req.BlendVoice, req.BlendAmount, ids.Count);
+            if (style == null) { error = $"Voice '{req.Voice}' unavailable"; return null; }
+
+            float[] samples = _session.Run(ids, style, req.Speed);
+            if (samples == null || samples.Length == 0) { error = "Model returned no audio samples"; return null; }
+
+            if (req.Volume != 1f && req.Volume > 0f)
+                for (int i = 0; i < samples.Length; i++) samples[i] *= req.Volume;
+
+            return samples;
         }
 
         private static string Trim(string s) => s != null && s.Length > 60 ? s.Substring(0, 60) + "…" : s;

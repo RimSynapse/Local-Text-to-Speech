@@ -64,10 +64,15 @@ namespace RimSynapse.LocalTts
             {
                 if (_cache.TryGetValue(voiceId, out var cached)) return cached;
 
+                // Resolve bundled ids first; if the string isn't a known bundled voice, treat it as
+                // a direct path to a caller-supplied .bin style vector (their own designed voice, a
+                // Voicebox-style export, or an #11 RNG voice). This is what lets a broker caller pass
+                // "af_heart" or "C:\path\myvoice.bin" through the same voice parameter.
                 string path = TtsAssets.VoiceFile(voiceId);
+                if (!File.Exists(path)) path = voiceId;
                 if (!File.Exists(path))
                 {
-                    TtsLog.Warning($"[LocalTTS] Voice file not found: {path}");
+                    TtsLog.Warning($"[LocalTTS] Voice not found (neither a bundled id nor a file): {voiceId}");
                     _cache[voiceId] = null;
                     return null;
                 }

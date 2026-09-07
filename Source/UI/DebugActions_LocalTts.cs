@@ -45,6 +45,43 @@ namespace RimSynapse.LocalTts.UI
             TtsLog.Message("[LocalTTS] Queued headless synthesis; watch the log for the result.");
         }
 
+        /// <summary>
+        /// Broker proof-of-function: fire a request through the public broker API, then poll the
+        /// ticket to completion and log the staged file (path, size) — the headless validation of
+        /// the async file-staging contract (#12). Also exercises the cache: a second identical
+        /// request must resolve to the same file as an instant hit.
+        /// </summary>
+        [DebugAction("RimSynapse", "LocalTTS: Broker request + stage file (Log)", actionType = DebugActionType.Action)]
+        private static void BrokerStageFile()
+        {
+            string ticket = LocalTtsBroker.RequestSpeech(TestLine);
+            if (ticket == null) { TtsLog.Warning("[LocalTTS][broker] RequestSpeech returned null (disabled/unavailable?)."); return; }
+            TtsLog.Message($"[LocalTTS][broker] ticket={ticket} status={LocalTtsBroker.GetStatus(ticket)} — polling…");
+
+            // Poll off the main thread so we don't block the game; log when it resolves.
+            System.Threading.Tasks.Task.Run(() =>
+            {
+                var sw = System.Diagnostics.Stopwatch.StartNew();
+                int status;
+                while ((status = LocalTtsBroker.GetStatus(ticket)) == LocalTtsBroker.STATUS_PENDING && sw.Elapsed.TotalSeconds < 60)
+                    System.Threading.Thread.Sleep(100);
+
+                if (status == LocalTtsBroker.STATUS_READY)
+                {
+                    string path = LocalTtsBroker.GetResultPath(ticket);
+                    long size = 0; try { size = new System.IO.FileInfo(path).Length; } catch { }
+                    string t2 = LocalTtsBroker.RequestSpeech(TestLine); // identical → cache hit
+                    bool sameFile = t2 == ticket && LocalTtsBroker.GetStatus(t2) == LocalTtsBroker.STATUS_READY;
+                    TtsLog.Message($"[LocalTTS][broker] READY in {sw.ElapsedMilliseconds}ms: {path} ({size} bytes). " +
+                                   $"Cache hit on repeat: {sameFile} (ticket {t2}).");
+                }
+                else
+                {
+                    TtsLog.Warning($"[LocalTTS][broker] ended status={status} error={LocalTtsBroker.GetError(ticket)}");
+                }
+            });
+        }
+
         /// <summary>Dump the current engine + asset status to the log.</summary>
         [DebugAction("RimSynapse", "LocalTTS: Dump engine status (Log)", actionType = DebugActionType.Action)]
         private static void DumpStatus()

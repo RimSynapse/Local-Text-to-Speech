@@ -30,6 +30,11 @@ namespace RimSynapse.LocalTts
             pumpGo.AddComponent<MainThreadPump>();
             TtsAudioPlayer.Init(pumpGo);
 
+            // Capture a writable root for the broker's WAV cache while we're on the main thread
+            // (Application.persistentDataPath is a per-user, writable location — the mod folder may
+            // be read-only under Steam).
+            LocalTtsBroker.CacheRoot = Application.persistentDataPath;
+
             // Resolve where the bundled model + native libraries live.
             TtsAssets.Init(content.RootDir);
 

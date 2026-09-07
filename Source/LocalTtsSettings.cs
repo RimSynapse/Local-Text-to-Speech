@@ -40,6 +40,9 @@ namespace RimSynapse.LocalTts
         /// <summary>Last phrase typed into the in-settings tester (persisted for convenience).</summary>
         public string testPhrase = "The storyteller watches, and the colony endures.";
 
+        /// <summary>Broker WAV cache size cap, in MB. Oldest files are evicted (LRU) past this.</summary>
+        public int cacheCapMb = 250;
+
         public override void ExposeData()
         {
             base.ExposeData();
@@ -51,6 +54,7 @@ namespace RimSynapse.LocalTts
             Scribe_Values.Look(ref acceleration, "acceleration", AccelerationMode.Auto);
             Scribe_Values.Look(ref enabled, "enabled", true);
             Scribe_Values.Look(ref testPhrase, "testPhrase", "The storyteller watches, and the colony endures.");
+            Scribe_Values.Look(ref cacheCapMb, "cacheCapMb", 250);
         }
     }
 }
