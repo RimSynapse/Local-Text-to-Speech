@@ -68,3 +68,24 @@ All three are headlessly triggerable via the dev-tools `run_debug_action` bridge
 - Windows 64-bit
 - Optional: RimSynapse Core v0.9.0+ (loads first when present; enables GPU stats reporting).
   The current build still hard-references Core — the standalone decoupling is issue #12.
+
+## License
+
+Local TTS is free software licensed under the **GNU General Public License v3.0** — see
+[`LICENSE`](LICENSE). This is a consequence of bundling **espeak-ng** (GPL-3.0) for
+grapheme-to-phoneme conversion; GPL-3.0 is not a restriction on price (the mod is free)
+but a guarantee that the source stays open and everyone keeps the freedom to use, study,
+modify, and share it.
+
+Third-party components and their licenses are documented in
+[`THIRD-PARTY-NOTICES.md`](THIRD-PARTY-NOTICES.md), with full texts under
+[`licenses/`](licenses/):
+
+| Component | License |
+|---|---|
+| Kokoro-82M model + voices | Apache-2.0 |
+| ONNX Runtime, .NET libraries | MIT |
+| espeak-ng | GPL-3.0 |
+
+Large binaries (model, voices, espeak-ng) are not committed to this repository; they are
+fetched by `download-assets.ps1` and packaged into release/Workshop builds.

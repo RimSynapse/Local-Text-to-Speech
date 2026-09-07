@@ -53,6 +53,12 @@ reports its GPU memory footprint to Core's GPU stats channel.
 --- Note ---
 Fully local: no text or audio ever leaves your machine.
 
+--- License and Credits ---
+Local TTS is free software under the GNU GPL v3.0; source at
+https://github.com/archdukejim/Local-Text-to-Speech. Built on Kokoro-82M (Apache-2.0,
+by hexgrad, architecture from StyleTTS 2), ONNX Runtime (MIT), and espeak-ng (GPL-3.0).
+Full attribution in THIRD-PARTY-NOTICES.md.
+
 --- Support the Project ---
 Buy me a coffee: https://buymeacoffee.com/archdukejim
     </description>
