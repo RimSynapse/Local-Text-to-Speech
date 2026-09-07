@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Text;
-using Newtonsoft.Json;
 
 namespace RimSynapse.LocalTts
 {
@@ -71,17 +71,99 @@ namespace RimSynapse.LocalTts
                 TtsLog.Message($"[LocalTTS] Vocabulary loaded: {_map.Count} entries ({(_fromFile ? "kokoro-vocab.json" : "embedded")}).");
         }
 
+        /// <summary>
+        /// Parse the vocab's flat <c>{"char": id, ...}</c> JSON object into a char→id map. This is a
+        /// purpose-built reader for exactly that shape (string keys, integer values) so the mod no
+        /// longer depends on Core's bundled Newtonsoft.Json. Keys are single phoneme characters; only
+        /// the first char of each key is used, matching the trained model's vocabulary.
+        /// </summary>
         private static Dictionary<char, int> Parse(string json)
         {
             var map = new Dictionary<char, int>();
-            var raw = JsonConvert.DeserializeObject<Dictionary<string, int>>(json);
-            if (raw != null)
+            if (string.IsNullOrEmpty(json)) return map;
+
+            int i = 0;
+            SkipWs(json, ref i);
+            if (i >= json.Length || json[i] != '{') return map;
+            i++; // consume '{'
+
+            while (i < json.Length)
             {
-                foreach (var kv in raw)
-                    if (!string.IsNullOrEmpty(kv.Key))
-                        map[kv.Key[0]] = kv.Value;
+                SkipWs(json, ref i);
+                if (i < json.Length && json[i] == '}') break;
+                if (i >= json.Length || json[i] != '"') break; // expected a key string
+
+                string key = ParseString(json, ref i);
+                SkipWs(json, ref i);
+                if (i >= json.Length || json[i] != ':') break;
+                i++; // consume ':'
+                SkipWs(json, ref i);
+                int value = ParseInt(json, ref i);
+
+                if (!string.IsNullOrEmpty(key))
+                    map[key[0]] = value;
+
+                SkipWs(json, ref i);
+                if (i < json.Length && json[i] == ',') { i++; continue; }
+                break; // '}' or malformed — done
             }
             return map;
+        }
+
+        private static void SkipWs(string s, ref int i)
+        {
+            while (i < s.Length)
+            {
+                char c = s[i];
+                if (c == ' ' || c == '\t' || c == '\n' || c == '\r') i++;
+                else break;
+            }
+        }
+
+        private static string ParseString(string s, ref int i)
+        {
+            var sb = new StringBuilder();
+            i++; // consume opening '"'
+            while (i < s.Length)
+            {
+                char c = s[i++];
+                if (c == '"') break;
+                if (c == '\\' && i < s.Length)
+                {
+                    char e = s[i++];
+                    switch (e)
+                    {
+                        case '"': sb.Append('"'); break;
+                        case '\\': sb.Append('\\'); break;
+                        case '/': sb.Append('/'); break;
+                        case 'b': sb.Append('\b'); break;
+                        case 'f': sb.Append('\f'); break;
+                        case 'n': sb.Append('\n'); break;
+                        case 'r': sb.Append('\r'); break;
+                        case 't': sb.Append('\t'); break;
+                        case 'u':
+                            if (i + 4 <= s.Length &&
+                                int.TryParse(s.Substring(i, 4), NumberStyles.HexNumber, CultureInfo.InvariantCulture, out int cp))
+                            {
+                                sb.Append((char)cp);
+                                i += 4;
+                            }
+                            break;
+                        default: sb.Append(e); break;
+                    }
+                }
+                else sb.Append(c);
+            }
+            return sb.ToString();
+        }
+
+        private static int ParseInt(string s, ref int i)
+        {
+            int start = i;
+            if (i < s.Length && (s[i] == '-' || s[i] == '+')) i++;
+            while (i < s.Length && s[i] >= '0' && s[i] <= '9') i++;
+            int.TryParse(s.Substring(start, i - start), NumberStyles.Integer, CultureInfo.InvariantCulture, out int v);
+            return v;
         }
     }
 }
