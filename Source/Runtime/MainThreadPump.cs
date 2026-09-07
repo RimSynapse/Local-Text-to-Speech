@@ -10,6 +10,10 @@ namespace RimSynapse.LocalTts
     /// </summary>
     public sealed class MainThreadPump : MonoBehaviour
     {
-        private void Update() => MainThreadDispatcher.Pump();
+        private void Update()
+        {
+            MainThreadDispatcher.Pump();
+            TtsAudioPlayer.Tick();
+        }
     }
 }

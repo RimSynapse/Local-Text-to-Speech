@@ -28,6 +28,7 @@ namespace RimSynapse.LocalTts
             var pumpGo = new GameObject("LocalTTS.MainThreadPump");
             Object.DontDestroyOnLoad(pumpGo);
             pumpGo.AddComponent<MainThreadPump>();
+            TtsAudioPlayer.Init(pumpGo);
 
             // Resolve where the bundled model + native libraries live.
             TtsAssets.Init(content.RootDir);
@@ -111,7 +112,7 @@ namespace RimSynapse.LocalTts
                     Engine?.Speak(Settings.testPhrase);
             }
             if (Widgets.ButtonText(row.RightHalf().ContractedBy(2f), "■  Stop"))
-                AudioPlaybackManager.StopPlayback();
+                TtsAudioPlayer.Stop();
 
             // ── Status (compact) ──
             listing.Gap(6f);

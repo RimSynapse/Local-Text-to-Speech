@@ -38,6 +38,12 @@
             <HintPath>$(RimWorldPath)\RimWorldWin64_Data\Managed\UnityEngine.TextRenderingModule.dll</HintPath>
             <Private>false</Private>
         </Reference>
+        <!-- AudioModule: AudioClip / AudioSource for the mod's own playback (replaces Core's
+             AudioPlaybackManager). Loaded at runtime; not bundled. -->
+        <Reference Include="UnityEngine.AudioModule">
+            <HintPath>$(RimWorldPath)\RimWorldWin64_Data\Managed\UnityEngine.AudioModule.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
         <Reference Include="0Harmony">
             <HintPath>$(HarmonyPath)\0Harmony.dll</HintPath>
             <Private>false</Private>

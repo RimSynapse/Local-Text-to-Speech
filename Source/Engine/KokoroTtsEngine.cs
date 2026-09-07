@@ -3,14 +3,13 @@ using System.Collections.Concurrent;
 using System.IO;
 using System.Threading;
 using RimSynapse;
-using RimSynapse.Utils;
 
 namespace RimSynapse.LocalTts
 {
     /// <summary>
     /// Asynchronous Kokoro TTS pipeline. Requests are queued and processed on a single dedicated
     /// background thread — synthesis never touches Unity's main thread. Finished audio is handed to
-    /// Core's <see cref="AudioPlaybackManager"/>, which marshals playback back onto the main thread.
+    /// <see cref="TtsAudioPlayer"/>, which marshals playback back onto the main thread.
     ///
     /// The heavy resources (native libs, ONNX session, espeak) are initialized lazily on the worker
     /// thread the first time a request is processed, so game load is never blocked.
@@ -266,8 +265,10 @@ namespace RimSynapse.LocalTts
                 return;
             }
 
-            byte[] pcm = PcmEncoder.FloatToPcm16(samples);
-            AudioPlaybackManager.PlayPcm(pcm); // enqueues playback on the main thread internally
+            // Play the raw samples directly through our own player (no PCM round-trip needed for
+            // playback; PcmEncoder is still used when the broker stages a WAV file). The player
+            // marshals the Unity AudioClip work onto the main thread itself.
+            TtsAudioPlayer.Play(samples, PcmEncoder.SampleRate);
         }
 
         private static string Trim(string s) => s != null && s.Length > 60 ? s.Substring(0, 60) + "…" : s;

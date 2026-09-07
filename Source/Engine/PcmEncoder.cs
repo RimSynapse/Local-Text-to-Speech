@@ -4,7 +4,9 @@ namespace RimSynapse.LocalTts
 {
     /// <summary>
     /// Converts Kokoro's float32 waveform output (mono, 24 kHz, nominally in [-1, 1]) into the
-    /// little-endian 16-bit PCM byte layout that RimSynapse Core's AudioPlaybackManager expects.
+    /// little-endian 16-bit PCM byte layout used when the broker stages a WAV file for a caller.
+    /// (Direct in-mod playback via <see cref="TtsAudioPlayer"/> uses the float samples straight,
+    /// with no PCM round-trip.)
     /// </summary>
     public static class PcmEncoder
     {
