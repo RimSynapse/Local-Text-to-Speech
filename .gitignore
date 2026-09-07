@@ -1,0 +1,16 @@
+# MSBuild intermediates
+Source/obj/
+Source/bin/
+
+# Local build path override (never commit a hardcoded RimWorld path)
+Source/GamePath.props
+
+# Bundled runtime assets — large binaries fetched by download-assets.ps1.
+# They ship inside the deployed/Steam mod folder but are kept out of git.
+Resources/native/
+Resources/models/
+
+# Bundled managed dependencies copied in at build time
+
+# Built assemblies ship as release zip assets, never in git (Core#110)
+Assemblies/*.dll

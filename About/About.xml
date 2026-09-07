@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ModMetaData>
+    <name>Local TTS</name>
+    <author>ArchdukeJim</author>
+    <packageId>ArchdukeJim.LocalTTS</packageId>
+    <url>https://github.com/archdukejim/Local-Text-to-Speech</url>
+    <modVersion>1.0.0</modVersion>
+    <supportedVersions>
+        <li>1.6</li>
+    </supportedVersions>
+    <!-- No dependencies: Local TTS is standalone. RimSynapse Core is optional — when it is
+         present we load after it so the soft integration (GPU stats reporting) can bind. -->
+    <loadAfter>
+        <li>RimSynapse.Core</li>
+    </loadAfter>
+    <description>
+Discord Community: https://discord.gg/eVBebZ2N9s
+Version: v1.0.0 (Target: RimWorld 1.6)
+
+Local TTS
+Official Wiki and Documentation: https://github.com/archdukejim/Local-Text-to-Speech/wiki
+
+Fully offline, on-device neural text-to-speech, powered by the Kokoro-82M model
+running through ONNX Runtime. No API keys, no cloud calls, no network required
+once the model is installed — all synthesis happens on your own machine.
+
+Standalone: no other mod is required. Other mods can request speech through the
+async broker API — a line is synthesized in the background, staged as an audio
+file, and the requesting mod is told when it is ready and where.
+
+--- Core Systems ---
+- Kokoro-82M Neural Voice: A compact, high-quality 82M-parameter TTS model bundled
+  with the mod. Produces natural 24kHz speech entirely on-device.
+- Automatic Hardware Acceleration: Synthesis runs asynchronously on a background
+  thread so the game never stutters. Uses your GPU via DirectML when a compatible
+  graphics card is present (any DirectX 12 GPU — NVIDIA, AMD, or Intel), and falls
+  back to multi-threaded CPU inference otherwise.
+- Async Broker API: Any mod can request a line; the audio file is generated and
+  staged in the background, with a ready-notification when it can be played.
+- 29 Voices with Blending: Pick any bundled voice, blend two for a custom timbre,
+  and audition any line from the mod settings.
+- Espeak-ng Phonemization: Bundled grapheme-to-phoneme conversion turns arbitrary
+  English text into the phonemes Kokoro expects.
+
+--- Requirements ---
+- Windows 64-bit
+- ~350 MB free disk space for the bundled model
+
+--- RimSynapse ---
+Works standalone. When RimSynapse Core is installed, Local TTS additionally
+reports its GPU memory footprint to Core's GPU stats channel.
+
+--- Note ---
+Fully local: no text or audio ever leaves your machine.
+
+--- License and Credits ---
+Local TTS is free software under the GNU GPL v3.0; source at
+https://github.com/archdukejim/Local-Text-to-Speech. Built on Kokoro-82M (Apache-2.0,
+by hexgrad, architecture from StyleTTS 2), ONNX Runtime (MIT), and espeak-ng (GPL-3.0).
+Full attribution in THIRD-PARTY-NOTICES.md.
+
+--- Support the Project ---
+Buy me a coffee: https://buymeacoffee.com/archdukejim
+    </description>
+</ModMetaData>
