@@ -18,9 +18,9 @@ namespace RimSynapse.LocalTts.UI
         private static void SpeakTestLine()
         {
             var engine = LocalTtsMod.Instance?.Engine;
-            if (engine == null) { SynapseLogger.Warning("[LocalTTS] Engine not available."); return; }
+            if (engine == null) { TtsLog.Warning("[LocalTTS] Engine not available."); return; }
             engine.Speak(TestLine);
-            SynapseLogger.Message("[LocalTTS] Queued test line for synthesis + playback.");
+            TtsLog.Message("[LocalTTS] Queued test line for synthesis + playback.");
         }
 
         /// <summary>
@@ -31,7 +31,7 @@ namespace RimSynapse.LocalTts.UI
         private static void SynthesizeAndDump()
         {
             var engine = LocalTtsMod.Instance?.Engine;
-            if (engine == null) { SynapseLogger.Warning("[LocalTTS] Engine not available."); return; }
+            if (engine == null) { TtsLog.Warning("[LocalTTS] Engine not available."); return; }
 
             var settings = LocalTtsMod.Instance.Settings;
             engine.Synthesize(TestLine, settings.defaultVoice, settings.speed, samples =>
@@ -39,11 +39,11 @@ namespace RimSynapse.LocalTts.UI
                 float seconds = samples.Length / (float)PcmEncoder.SampleRate;
                 float peak = 0f;
                 foreach (var s in samples) { float a = s < 0 ? -s : s; if (a > peak) peak = a; }
-                SynapseLogger.Message(
+                TtsLog.Message(
                     $"[LocalTTS][debug] Synthesis OK: {samples.Length} samples ({seconds:F2}s @ {PcmEncoder.SampleRate}Hz), " +
                     $"peak amplitude {peak:F3}, backend {engine.ActiveProvider}.");
             });
-            SynapseLogger.Message("[LocalTTS] Queued headless synthesis; watch the log for the result.");
+            TtsLog.Message("[LocalTTS] Queued headless synthesis; watch the log for the result.");
         }
 
         /// <summary>Dump the current engine + asset status to the log.</summary>
@@ -67,7 +67,7 @@ namespace RimSynapse.LocalTts.UI
             }
             if (mod?.Settings != null)
                 sb.AppendLine($"  Settings:        voice='{mod.Settings.defaultVoice}', speed={mod.Settings.speed:F2}, accel={mod.Settings.acceleration}, enabled={mod.Settings.enabled}");
-            SynapseLogger.Message(sb.ToString());
+            TtsLog.Message(sb.ToString());
         }
     }
 }

@@ -53,23 +53,23 @@ namespace RimSynapse.LocalTts
                 }
                 catch (Exception ex)
                 {
-                    SynapseLogger.Warning($"[LocalTTS] Failed to parse {Path.GetFileName(path)}: {ex.Message}. Using embedded vocab.");
+                    TtsLog.Warning($"[LocalTTS] Failed to parse {Path.GetFileName(path)}: {ex.Message}. Using embedded vocab.");
                 }
             }
 
             if (_map == null || _map.Count == 0)
             {
                 _map = Parse(Encoding.UTF8.GetString(Convert.FromBase64String(EmbeddedVocabB64)));
-                SynapseLogger.Message("[LocalTTS] Using embedded Kokoro vocabulary (kokoro-vocab.json not bundled).");
+                TtsLog.Message("[LocalTTS] Using embedded Kokoro vocabulary (kokoro-vocab.json not bundled).");
             }
 
             // Integrity canaries against known-good ids from the trained model.
             bool ok = _map.TryGetValue(' ', out int sp) && sp == 16
                       && _map.TryGetValue('A', out int a) && a == 24;
             if (!ok)
-                SynapseLogger.Warning($"[LocalTTS] Vocabulary failed integrity check ({_map.Count} entries) — audio may be garbled.");
+                TtsLog.Warning($"[LocalTTS] Vocabulary failed integrity check ({_map.Count} entries) — audio may be garbled.");
             else
-                SynapseLogger.Message($"[LocalTTS] Vocabulary loaded: {_map.Count} entries ({(_fromFile ? "kokoro-vocab.json" : "embedded")}).");
+                TtsLog.Message($"[LocalTTS] Vocabulary loaded: {_map.Count} entries ({(_fromFile ? "kokoro-vocab.json" : "embedded")}).");
         }
 
         private static Dictionary<char, int> Parse(string json)

@@ -66,7 +66,7 @@ namespace RimSynapse.LocalTts
             var settings = LocalTtsMod.Instance?.Settings;
             if (settings != null && !settings.enabled)
             {
-                SynapseLogger.Message("[LocalTTS] Speak() ignored — mod is disabled in settings.");
+                TtsLog.Message("[LocalTTS] Speak() ignored — mod is disabled in settings.");
                 return;
             }
             if (string.IsNullOrWhiteSpace(text)) return;
@@ -131,7 +131,7 @@ namespace RimSynapse.LocalTts
                 catch (Exception ex)
                 {
                     LastError = ex.Message;
-                    SynapseLogger.Error($"[LocalTTS] Synthesis error: {ex}");
+                    TtsLog.Error($"[LocalTTS] Synthesis error: {ex}");
                 }
             }
         }
@@ -146,7 +146,7 @@ namespace RimSynapse.LocalTts
             if (!TtsAssets.ModelInstalled)
             {
                 LastError = "Model not installed. Run download-assets.ps1.";
-                SynapseLogger.Warning($"[LocalTTS] {LastError} (looked for {TtsAssets.ModelPath})");
+                TtsLog.Warning($"[LocalTTS] {LastError} (looked for {TtsAssets.ModelPath})");
                 return false;
             }
 
@@ -184,12 +184,12 @@ namespace RimSynapse.LocalTts
                 const float SessionOverheadMb = 64f;
                 EstimatedVramMb = modelMb + SessionOverheadMb;
 
-                SynapseLogger.Message($"[LocalTTS] Model VRAM footprint ~{EstimatedVramMb:F0} MB " +
+                TtsLog.Message($"[LocalTTS] Model VRAM footprint ~{EstimatedVramMb:F0} MB " +
                                       $"({(_session.OnGpu ? "resident on GPU" : "CPU — not resident")}).");
             }
             catch (Exception ex)
             {
-                SynapseLogger.Warning($"[LocalTTS] Failed to estimate VRAM footprint: {ex.Message}");
+                TtsLog.Warning($"[LocalTTS] Failed to estimate VRAM footprint: {ex.Message}");
             }
 
             // Register with Core's shared channel regardless of estimate outcome; a non-resident
@@ -200,7 +200,7 @@ namespace RimSynapse.LocalTts
             }
             catch (Exception ex)
             {
-                SynapseLogger.Warning($"[LocalTTS] Could not register GPU consumer with Core: {ex.Message}");
+                TtsLog.Warning($"[LocalTTS] Could not register GPU consumer with Core: {ex.Message}");
             }
         }
 
@@ -221,14 +221,14 @@ namespace RimSynapse.LocalTts
             string phonemes = EspeakG2P.Phonemize(req.Text, lang);
             if (string.IsNullOrEmpty(phonemes))
             {
-                SynapseLogger.Warning($"[LocalTTS] No phonemes produced for: \"{Trim(req.Text)}\"");
+                TtsLog.Warning($"[LocalTTS] No phonemes produced for: \"{Trim(req.Text)}\"");
                 return;
             }
 
             var ids = KokoroTokenizer.Encode(phonemes);
             if (ids.Count == 0)
             {
-                SynapseLogger.Warning("[LocalTTS] No in-vocabulary tokens produced.");
+                TtsLog.Warning("[LocalTTS] No in-vocabulary tokens produced.");
                 return;
             }
 
@@ -245,7 +245,7 @@ namespace RimSynapse.LocalTts
 
             if (samples == null || samples.Length == 0)
             {
-                SynapseLogger.Warning("[LocalTTS] Model returned no audio samples.");
+                TtsLog.Warning("[LocalTTS] Model returned no audio samples.");
                 return;
             }
 
@@ -257,7 +257,7 @@ namespace RimSynapse.LocalTts
             }
 
             float seconds = samples.Length / (float)PcmEncoder.SampleRate;
-            SynapseLogger.Message($"[LocalTTS] Synthesized {seconds:F1}s in {ms}ms on {_session.ActiveProvider} " +
+            TtsLog.Message($"[LocalTTS] Synthesized {seconds:F1}s in {ms}ms on {_session.ActiveProvider} " +
                                   $"({ids.Count} tokens, voice '{req.Voice}').");
 
             if (req.OnSamples != null)

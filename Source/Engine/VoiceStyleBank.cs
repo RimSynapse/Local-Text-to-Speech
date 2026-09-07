@@ -68,7 +68,7 @@ namespace RimSynapse.LocalTts
                 string path = TtsAssets.VoiceFile(voiceId);
                 if (!File.Exists(path))
                 {
-                    SynapseLogger.Warning($"[LocalTTS] Voice file not found: {path}");
+                    TtsLog.Warning($"[LocalTTS] Voice file not found: {path}");
                     _cache[voiceId] = null;
                     return null;
                 }
@@ -79,7 +79,7 @@ namespace RimSynapse.LocalTts
                     int expected = Rows * Dim * sizeof(float);
                     if (bytes.Length < expected)
                     {
-                        SynapseLogger.Error($"[LocalTTS] Voice '{voiceId}' is {bytes.Length} bytes, expected at least {expected}.");
+                        TtsLog.Error($"[LocalTTS] Voice '{voiceId}' is {bytes.Length} bytes, expected at least {expected}.");
                         _cache[voiceId] = null;
                         return null;
                     }
@@ -91,7 +91,7 @@ namespace RimSynapse.LocalTts
                 }
                 catch (Exception ex)
                 {
-                    SynapseLogger.Error($"[LocalTTS] Failed to load voice '{voiceId}': {ex.Message}");
+                    TtsLog.Error($"[LocalTTS] Failed to load voice '{voiceId}': {ex.Message}");
                     _cache[voiceId] = null;
                     return null;
                 }

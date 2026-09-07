@@ -35,17 +35,17 @@ namespace RimSynapse.LocalTts
             {
                 ActiveProvider = "DirectML (GPU)";
                 OnGpu = true;
-                SynapseLogger.Message("[LocalTTS] Kokoro session on DirectML (GPU).");
+                TtsLog.Message("[LocalTTS] Kokoro session on DirectML (GPU).");
             }
             else if (TryCreate(modelPath, useDml: false))
             {
                 ActiveProvider = "CPU";
                 OnGpu = false;
-                SynapseLogger.Message("[LocalTTS] Kokoro session on CPU.");
+                TtsLog.Message("[LocalTTS] Kokoro session on CPU.");
             }
             else
             {
-                SynapseLogger.Error("[LocalTTS] Failed to create an ONNX session on any backend.");
+                TtsLog.Error("[LocalTTS] Failed to create an ONNX session on any backend.");
                 return false;
             }
 
@@ -77,9 +77,9 @@ namespace RimSynapse.LocalTts
             catch (Exception ex)
             {
                 if (useDml)
-                    SynapseLogger.Warning($"[LocalTTS] DirectML provider unavailable ({ex.Message}); falling back to CPU.");
+                    TtsLog.Warning($"[LocalTTS] DirectML provider unavailable ({ex.Message}); falling back to CPU.");
                 else
-                    SynapseLogger.Error($"[LocalTTS] CPU session creation failed: {ex.Message}");
+                    TtsLog.Error($"[LocalTTS] CPU session creation failed: {ex.Message}");
                 _session = null;
                 return false;
             }
@@ -112,7 +112,7 @@ namespace RimSynapse.LocalTts
             _speedName ??= "speed";
             _outputName = _session.OutputMetadata.Keys.FirstOrDefault() ?? "waveform";
 
-            SynapseLogger.Message($"[LocalTTS] Model IO -> ids='{_inputIdsName}', style='{_styleName}', " +
+            TtsLog.Message($"[LocalTTS] Model IO -> ids='{_inputIdsName}', style='{_styleName}', " +
                                   $"speed='{_speedName}', out='{_outputName}'.");
         }
 

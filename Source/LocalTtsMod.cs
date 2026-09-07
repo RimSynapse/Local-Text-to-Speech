@@ -21,6 +21,14 @@ namespace RimSynapse.LocalTts
             Instance = this;
             Settings = GetSettings<LocalTtsSettings>();
 
+            // Stand up the main-thread pump before anything logs or synthesizes off-thread. This
+            // runs in menu and in-game without a Game instance or a Harmony patch, and lets the
+            // worker thread marshal logging/playback/broker callbacks back onto the main thread.
+            MainThreadDispatcher.CaptureMainThread();
+            var pumpGo = new GameObject("LocalTTS.MainThreadPump");
+            Object.DontDestroyOnLoad(pumpGo);
+            pumpGo.AddComponent<MainThreadPump>();
+
             // Resolve where the bundled model + native libraries live.
             TtsAssets.Init(content.RootDir);
 
@@ -33,7 +41,7 @@ namespace RimSynapse.LocalTts
             if (Settings.enabled && TtsAssets.ModelInstalled)
                 Engine.Warmup();
 
-            SynapseLogger.Message("[LocalTTS] RimSynapse Local Text-to-Speech loaded. " +
+            TtsLog.Message("[LocalTTS] RimSynapse Local Text-to-Speech loaded. " +
                                   (TtsAssets.ModelInstalled ? "Model present." : "Model NOT installed — run download-assets.ps1."));
         }
 

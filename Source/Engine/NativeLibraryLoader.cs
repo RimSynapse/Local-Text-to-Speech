@@ -37,7 +37,7 @@ namespace RimSynapse.LocalTts
                 string nativeDir = TtsAssets.NativeDir;
                 if (!Directory.Exists(nativeDir))
                 {
-                    SynapseLogger.Warning($"[LocalTTS] Native folder missing: {nativeDir}. " +
+                    TtsLog.Warning($"[LocalTTS] Native folder missing: {nativeDir}. " +
                                           "Run download-assets.ps1 to install the model + native runtime.");
                     return;
                 }
@@ -55,11 +55,11 @@ namespace RimSynapse.LocalTts
 
                 Loaded = ok;
                 if (ok)
-                    SynapseLogger.Message("[LocalTTS] Native libraries loaded (ONNX Runtime + espeak-ng).");
+                    TtsLog.Message("[LocalTTS] Native libraries loaded (ONNX Runtime + espeak-ng).");
             }
             catch (Exception ex)
             {
-                SynapseLogger.Error($"[LocalTTS] Native library preload failed: {ex.Message}");
+                TtsLog.Error($"[LocalTTS] Native library preload failed: {ex.Message}");
             }
         }
 
@@ -68,7 +68,7 @@ namespace RimSynapse.LocalTts
             if (!File.Exists(path))
             {
                 if (required)
-                    SynapseLogger.Warning($"[LocalTTS] Required native library not found: {path}");
+                    TtsLog.Warning($"[LocalTTS] Required native library not found: {path}");
                 return false;
             }
 
@@ -76,7 +76,7 @@ namespace RimSynapse.LocalTts
             if (handle == IntPtr.Zero)
             {
                 int err = Marshal.GetLastWin32Error();
-                SynapseLogger.Error($"[LocalTTS] LoadLibrary failed for {Path.GetFileName(path)} (Win32 {err}).");
+                TtsLog.Error($"[LocalTTS] LoadLibrary failed for {Path.GetFileName(path)} (Win32 {err}).");
                 return false;
             }
             return true;

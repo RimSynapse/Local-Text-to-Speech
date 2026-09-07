@@ -37,18 +37,18 @@ namespace RimSynapse.LocalTts
 
                     if (rate < 0)
                     {
-                        SynapseLogger.Error("[LocalTTS] espeak_Initialize failed — check that espeak-ng-data is present.");
+                        TtsLog.Error("[LocalTTS] espeak_Initialize failed — check that espeak-ng-data is present.");
                         _failed = true;
                         return false;
                     }
 
                     _initialized = true;
-                    SynapseLogger.Message($"[LocalTTS] espeak-ng initialized ({rate} Hz internal).");
+                    TtsLog.Message($"[LocalTTS] espeak-ng initialized ({rate} Hz internal).");
                     return true;
                 }
                 catch (Exception ex)
                 {
-                    SynapseLogger.Error($"[LocalTTS] espeak-ng initialization threw: {ex.Message}");
+                    TtsLog.Error($"[LocalTTS] espeak-ng initialization threw: {ex.Message}");
                     _failed = true;
                     return false;
                 }
@@ -61,7 +61,7 @@ namespace RimSynapse.LocalTts
             if (string.IsNullOrEmpty(lang) || lang == _currentLang) return;
             int err = EspeakNative.SetVoiceByName(lang);
             if (err != 0)
-                SynapseLogger.Warning($"[LocalTTS] espeak SetVoiceByName('{lang}') returned {err}; using previous voice.");
+                TtsLog.Warning($"[LocalTTS] espeak SetVoiceByName('{lang}') returned {err}; using previous voice.");
             else
                 _currentLang = lang;
         }
@@ -102,7 +102,7 @@ namespace RimSynapse.LocalTts
                 }
                 catch (Exception ex)
                 {
-                    SynapseLogger.Error($"[LocalTTS] Phonemize failed: {ex.Message}");
+                    TtsLog.Error($"[LocalTTS] Phonemize failed: {ex.Message}");
                     return string.Empty;
                 }
                 finally
