@@ -48,17 +48,10 @@
             <HintPath>$(HarmonyPath)\0Harmony.dll</HintPath>
             <Private>false</Private>
         </Reference>
-        <!-- RimSynapse Core — built locally. Provides SynapseCore, SynapseLogger,
-             SynapseGameComponent, AudioPlaybackManager, and the shared System.* deps. -->
-        <Reference Include="RimSynapseCore">
-            <HintPath>$(RimSynapseCoreAssembly)\RimSynapseCore.dll</HintPath>
-            <Private>false</Private>
-        </Reference>
-        <!-- Newtonsoft.Json — bundled by Core; used to parse the optional vocab override. -->
-        <Reference Include="Newtonsoft.Json">
-            <HintPath>$(RimSynapseCoreAssembly)\Newtonsoft.Json.dll</HintPath>
-            <Private>false</Private>
-        </Reference>
+        <!-- Standalone: no RimSynapse Core reference. Core previously supplied SynapseLogger,
+             AudioPlaybackManager, the GpuStats channel, and Newtonsoft.Json — all now replaced
+             by in-mod equivalents (TtsLog, TtsAudioPlayer, CoreGpuBridge via reflection, and a
+             hand-rolled vocab parser). Optional Core integration is bound at runtime by reflection. -->
     </ItemGroup>
 
     <!-- .NET Framework reference assemblies via NuGet (no system-wide targeting pack needed). -->
@@ -93,6 +86,16 @@
             <GeneratePathProperty>true</GeneratePathProperty>
             <ExcludeAssets>runtime</ExcludeAssets>
         </PackageReference>
+        <!-- These two were previously provided by RimSynapse Core; standalone Local TTS must
+             bundle them itself, as the ONNX Runtime managed assembly depends on them. -->
+        <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.0.0">
+            <GeneratePathProperty>true</GeneratePathProperty>
+            <ExcludeAssets>runtime</ExcludeAssets>
+        </PackageReference>
+        <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.4">
+            <GeneratePathProperty>true</GeneratePathProperty>
+            <ExcludeAssets>runtime</ExcludeAssets>
+        </PackageReference>
     </ItemGroup>
 
     <!--
@@ -113,6 +116,8 @@
             <_SysShims Include="$(PkgSystem_Memory)\lib\netstandard2.0\System.Memory.dll" />
             <_SysShims Include="$(PkgSystem_Buffers)\lib\netstandard2.0\System.Buffers.dll" />
             <_SysShims Include="$(PkgSystem_Numerics_Vectors)\lib\netstandard2.0\System.Numerics.Vectors.dll" />
+            <_SysShims Include="$(PkgSystem_Runtime_CompilerServices_Unsafe)\lib\netstandard2.0\System.Runtime.CompilerServices.Unsafe.dll" />
+            <_SysShims Include="$(PkgSystem_Threading_Tasks_Extensions)\lib\netstandard2.0\System.Threading.Tasks.Extensions.dll" />
         </ItemGroup>
         <Copy SourceFiles="@(_OrtManaged)" DestinationFolder="$(AsmDest)" SkipUnchangedFiles="true" />
         <Copy SourceFiles="@(_SysShims)" DestinationFolder="$(AsmDest)" SkipUnchangedFiles="true" />
